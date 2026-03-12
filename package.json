@@ -5,11 +5,15 @@
   "scripts": {
     "start": "npx openclaw gateway",
     "doctor": "npx openclaw doctor",
-    "skills": "npx openclaw skills list"
+    "skills": "npx openclaw skills list",
+    "noopenai:server": "node no-openai/voice-loop-server.cjs",
+    "noopenai:call": "node no-openai/start-call.cjs"
   },
   "keywords": ["openclaw", "telegram", "restaurant", "voice", "agent"],
   "license": "MIT",
   "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
     "openclaw": "^2026.3.11"
   }
 }

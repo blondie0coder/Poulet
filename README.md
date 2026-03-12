@@ -106,6 +106,48 @@ Just message the bot naturally:
 
 Poulet will call, order, and report back.
 
+## No-OpenAI Voice Loop (Twilio + ElevenLabs)
+
+If you want phone calls without OpenAI credits, use the `no-openai` flow on this branch.
+It uses:
+
+- Twilio for telephony
+- ElevenLabs for natural speech playback
+- Twilio speech recognition (`<Gather input="speech">`) for capturing responses
+- Optional Claude rewrite (uses `ANTHROPIC_API_KEY` if present)
+
+### 1) Set env vars
+
+Add these to `.env`:
+
+```bash
+PUBLIC_BASE_URL=https://<your-ngrok-domain>
+NOOPENAI_PORT=3340
+NOOPENAI_SERVER_URL=http://127.0.0.1:3340
+NOOPENAI_ADMIN_TOKEN=choose-a-random-secret
+DEFAULT_TEST_NUMBER=+41782040799
+CALL_LANGUAGE=de-CH
+ELEVENLABS_VOICE_ID=EXAVITQu4vr4xnSDxMaL
+```
+
+### 2) Run the no-openai server
+
+```bash
+npm run noopenai:server
+```
+
+### 3) Place a test call
+
+```bash
+# Uses DEFAULT_TEST_NUMBER
+npm run noopenai:call
+
+# Or explicit number
+node no-openai/start-call.cjs +41782040799
+```
+
+The call asks for the daily menu, listens, asks for price/pickup time, then confirms and hangs up.
+
 ## Project Structure
 
 ```
@@ -116,6 +158,7 @@ Poulet/
 ├── USER.md          # Your profile (built over time)
 ├── TOOLS.md         # Restaurant directory, voice prefs, local config
 ├── HEARTBEAT.md     # Periodic task config
+├── no-openai/       # No-OpenAI Twilio + ElevenLabs call flow
 ├── .env             # Secrets (gitignored)
 ├── .env.example     # Template for secrets
 ├── package.json     # Node dependencies (openclaw)

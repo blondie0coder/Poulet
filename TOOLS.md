@@ -1,43 +1,28 @@
-# TOOLS.md — Local Configuration
+# TOOLS.md — Configuration
 
-## Telephony
+## Voice Calls
 
-Voice calls are placed via the `voice-call` plugin.
-Provider config lives in `~/.openclaw/openclaw.json` under `plugins.entries.voice-call.config`.
+Calls are placed via the `voice_call` tool (OpenClaw voice-call plugin, powered by Twilio).
+Config lives in `~/.openclaw/openclaw.json` under `plugins.entries.voice-call`.
 
-Supported providers: Twilio, Telnyx, Plivo.
-
-Current provider: (configure in openclaw.json — see README for setup)
-
-## ElevenLabs (sag)
-
-- Preferred model: `eleven_multilingual_v2` (multilingual, stable)
-- Preferred voice: (set ELEVENLABS_VOICE_ID or pick per-call)
-- API key: stored in `ELEVENLABS_API_KEY` env var
+Voice: ElevenLabs (`eleven_multilingual_v2`, voice ID configured in openclaw.json).
+STT: OpenAI Realtime (used by OpenClaw for live transcription during calls).
 
 ## Restaurant Directory
 
 Add known restaurants here so Poulet can look up numbers without asking:
 
-- Default test number: +41 78 204 07 99
+| Restaurant | Phone | Notes |
+|---|---|---|
+| Test number | +41782040799 | Default test |
 
-(Add restaurant entries as you use the agent)
+Add more rows as you use the agent.
 
-## TTS Language Hints
+## Language by Region
 
-Switzerland has four language regions. Use the appropriate `--lang` flag:
-- Zurich / Bern / Basel → `de`
-- Geneva / Lausanne → `fr`
-- Lugano / Bellinzona → `it`
-- Default fallback → `en`
-
-## Telegram Trigger Modes
-
-- `/with` = legacy `voice_call` tool path (may need OpenAI key for full streaming conversation)
-- `/no` = no-openai service path (`no-openai/voice-loop-server.cjs`)
-
-No-openai service endpoint:
-
-- `POST $NOOPENAI_SERVER_URL/twilio/no-openai/call`
-- JSON body: `{ "to": "+41...", "prompt": "..." }`
-- Header: `x-admin-token: $NOOPENAI_ADMIN_TOKEN` (if set)
+| Region | Language |
+|---|---|
+| Zurich / Bern / Basel | German (de-CH) |
+| Geneva / Lausanne | French (fr-CH) |
+| Lugano / Bellinzona | Italian (it-CH) |
+| Default | English |

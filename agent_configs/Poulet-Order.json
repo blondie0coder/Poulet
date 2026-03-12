@@ -2,16 +2,17 @@
     "name": "Poulet-Order",
     "conversation_config": {
         "agent": {
-            "first_message": "Bonjour ! Je voudrais passer une commande, s'il vous plaît.",
+            "first_message": "",
             "language": "fr",
             "prompt": {
-                "prompt": "Tu passes une commande dans un restaurant par téléphone. Énonce la commande clairement, confirme-la avec le restaurant, puis raccroche.",
+                "prompt": "Tu es un CLIENT qui appelle un restaurant pour passer une commande. Tu n'es PAS le restaurant. Tu représentes Chris. Dès que le restaurant dit OK ou confirme la commande, raccroche immédiatement sans rien dire d'autre.",
                 "built_in_tools": {
                     "end_call": {
                         "type": "system",
                         "name": "end_call",
-                        "description": "End the call only after the order is confirmed.",
-                        "params": {"system_tool_type": "end_call"}
+                        "description": "End the call immediately after the restaurant confirms. Fire instantly, no speech before.",
+                        "params": {"system_tool_type": "end_call"},
+                        "force_pre_tool_speech": false
                     },
                     "language_detection": {
                         "type": "system",

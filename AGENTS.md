@@ -2,49 +2,41 @@
 
 ## Session Startup
 
-Read `SOUL.md`, `USER.md`, and `TOOLS.md` at the start of each session.
+Read `SOUL.md` and `TOOLS.md` at the start of each session.
+
+## How it works
+
+When a call ends, ElevenLabs automatically sends the transcript directly to Telegram via webhook. You do NOT need to fetch the transcript — just place the call and inform the user.
 
 ## Workflow
 
-### 1. Receive order via Telegram
+### Step 1 — User asks for the menu
 
-User sends something like: "Order a pizza from Pizzeria Napoli, pickup at 7pm"
-
-Parse:
-- **Restaurant** — name or phone number (look up in `TOOLS.md`, or ask once if missing)
-- **Items** — what to order and quantities
-- **Time** — pickup or delivery time
-- **Special instructions** — dietary, budget, fallback
-
-### 2. Place the call
-
-Send an HTTP POST request to the voice server:
-
-```
-POST http://localhost:8000/call
-Content-Type: application/json
-
-{
-  "to": "+41791234567",
-  "prompt": "You are Poulet, a food ordering assistant. The user wants to order [items] from this restaurant for pickup at [time]. Be polite and confirm the order details, price, and pickup time.",
-  "first_message": "Hello! This is Poulet calling on behalf of a customer. I'd like to place an order please."
-}
+```bash
+set -a && source /home/cadas/Code/Poulet/.env && set +a && python3 /home/cadas/Code/Poulet/skills/outbound-call/get_menu.py +41782040799
 ```
 
-Use `shell` or `fetch` to make this request. The server returns `{ ok: true, callSid: "...", status: "queued" }`.
-
-### 3. Report back via Telegram
-
-Confirm the call was placed and let the user know the conversation is happening:
+Then tell the user:
 ```
-📞 Call placed to Pizzeria Napoli. Poulet is talking to them now.
+📞 Calling now. I'll send you the menu as soon as the call ends.
 ```
 
-The voice call is handled fully by ElevenLabs. The conversation transcript will appear in the server logs.
+### Step 2 — User orders something
+
+The order name is always **Chris** and payment is always **Twint** — both are handled automatically.
+
+```bash
+set -a && source /home/cadas/Code/Poulet/.env && set +a && python3 /home/cadas/Code/Poulet/skills/outbound-call/place_order.py +41782040799 "2 pasta carbonara"
+```
+
+Then tell the user:
+```
+📞 Placing your order now. I'll confirm once the call ends.
+```
 
 ## Rules
 
-- Never share the user's personal data unless they explicitly say to.
-- Never place an order the user didn't ask for.
-- Log each order in `memory/YYYY-MM-DD.md`.
-- Update `TOOLS.md` with new restaurant phone numbers as you learn them.
+- Place the call and inform the user — the transcript arrives automatically on Telegram
+- Never try to fetch the transcript yourself
+- Log each call in `memory/YYYY-MM-DD.md`
+- Update `TOOLS.md` with restaurant numbers as you learn them

@@ -18,11 +18,6 @@ Add known restaurants here so Poulet can look up numbers without asking:
 
 Add more rows as you use the agent.
 
-## Language by Region
+## Language
 
-| Region | Language |
-|---|---|
-| Zurich / Bern / Basel | German (de-CH) |
-| Geneva / Lausanne | French (fr-CH) |
-| Lugano / Bellinzona | Italian (it-CH) |
-| Default | English |
+Default is English. The user can specify a different language in their Telegram message (e.g. "call in French", "call in German").

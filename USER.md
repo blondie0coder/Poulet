@@ -1,16 +1,16 @@
 # USER.md
 
-- **Name:** (update after first conversation)
-- **What to call them:** (update after first conversation)
+- **Name:** Chris
 - **Timezone:** Europe/Zurich
 - **Location:** Switzerland
 - **Notes:** Uses Telegram to communicate with Poulet.
 
 ## Preferences
 
-- **Languages spoken:** (update as learned)
+- **Order name:** Always use **Chris** when placing orders at restaurants
+- **Payment:** Always Twint — mention it when placing the order, never ask the restaurant if they accept it
+- **Languages spoken:** English
 - **Dietary restrictions:** (update as learned)
-- **Default pickup name:** (update as learned)
 - **Favorite restaurants:** (build over time)
 - **Max budget:** (update if stated)
 

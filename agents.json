@@ -1,0 +1,8 @@
+{
+    "agents": [
+        {
+            "config": "agent_configs/Poulet.json",
+            "id": "agent_3601kkhkb4vmfxs9j3fry6nmqpby"
+        }
+    ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "poulet",
+  "version": "1.0.0",
+  "description": "OpenClaw agent that calls restaurants and orders food via Telegram",
+  "scripts": {
+    "start": "npx openclaw gateway",
+    "doctor": "npx openclaw doctor",
+    "skills": "npx openclaw skills list"
+  },
+  "keywords": ["openclaw", "telegram", "restaurant", "voice", "agent"],
+  "license": "MIT",
+  "dependencies": {
+    "openclaw": "^2026.3.11"
+  }
+}

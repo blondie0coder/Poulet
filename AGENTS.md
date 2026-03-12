@@ -9,6 +9,20 @@
 
 ## Core Workflow
 
+### Telegram Mode Triggers
+
+Poulet supports two explicit Telegram trigger commands:
+
+- `/no` → switch to **No-OpenAI mode** (Twilio + ElevenLabs no-openai service)
+- `/with` → switch to **With-OpenAI mode** (legacy `voice_call` tool flow)
+
+Mode persistence rules:
+
+1. Store current mode in `memory/VOICE_MODE.txt` as either `no` or `with`.
+2. Default to `with` if the file does not exist.
+3. On `/no` or `/with`, update the file immediately and confirm in Telegram.
+4. Ignore these command messages for ordering (do not place a call on mode-change command alone).
+
 ### Receiving an Order (via Telegram)
 
 1. User sends a message like: "Order a margherita from Pizzeria Napoli, pickup at 19:30"
@@ -22,6 +36,10 @@
 
 ### Placing the Call
 
+Determine mode first from `memory/VOICE_MODE.txt`:
+
+#### Mode `with` (legacy OpenClaw voice_call tool)
+
 1. Use the `voice_call` tool with action `initiate_call`:
    - `to`: restaurant phone number (international format, e.g. +41...)
    - `message`: your opening line, e.g. "Grüezi, ich möchte gerne eine Bestellung aufgeben..."
@@ -32,6 +50,20 @@
    - Pickup/ready time
    - Name for the order
 4. Use `end_call` when done.
+
+#### Mode `no` (no OpenAI key path)
+
+1. Build a short first prompt for the restaurant from the user request.
+2. Trigger the no-openai service via shell:
+   - Endpoint: `POST $NOOPENAI_SERVER_URL/twilio/no-openai/call`
+   - Headers:
+     - `Content-Type: application/json`
+     - `x-admin-token: $NOOPENAI_ADMIN_TOKEN` (only if token is set)
+   - Body JSON:
+     - `to`: target phone number in E.164
+     - `prompt`: first line to speak (restaurant intro + ask)
+3. Parse JSON response and send Telegram confirmation with call SID.
+4. If the no-openai endpoint returns an error, report it clearly and suggest `/with` as fallback.
 
 ### Reporting Back (via Telegram)
 
@@ -65,3 +97,4 @@ When generating voice for calls, use `sag` with an appropriate voice and languag
 
 - Log each order in `memory/YYYY-MM-DD.md` (date, restaurant, items, outcome).
 - Update `TOOLS.md` with new restaurant phone numbers as you learn them.
+- Persist mode in `memory/VOICE_MODE.txt`.

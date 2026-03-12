@@ -30,3 +30,14 @@ Switzerland has four language regions. Use the appropriate `--lang` flag:
 - Geneva / Lausanne → `fr`
 - Lugano / Bellinzona → `it`
 - Default fallback → `en`
+
+## Telegram Trigger Modes
+
+- `/with` = legacy `voice_call` tool path (may need OpenAI key for full streaming conversation)
+- `/no` = no-openai service path (`no-openai/voice-loop-server.cjs`)
+
+No-openai service endpoint:
+
+- `POST $NOOPENAI_SERVER_URL/twilio/no-openai/call`
+- JSON body: `{ "to": "+41...", "prompt": "..." }`
+- Header: `x-admin-token: $NOOPENAI_ADMIN_TOKEN` (if set)

@@ -106,6 +106,13 @@ Just message the bot naturally:
 
 Poulet will call, order, and report back.
 
+### Mode Triggers in Telegram
+
+- `/no` → use the no-openai phone flow
+- `/with` → use the legacy OpenClaw `voice_call` flow
+
+The selected mode is persisted by the agent in `memory/VOICE_MODE.txt`.
+
 ## No-OpenAI Voice Loop (Twilio + ElevenLabs)
 
 If you want phone calls without OpenAI credits, use the `no-openai` flow on this branch.
@@ -144,6 +151,9 @@ npm run noopenai:call
 
 # Or explicit number
 node no-openai/start-call.cjs +41782040799
+
+# Explicit number + custom spoken prompt
+node no-openai/start-call.cjs +41782040799 "Gruezi. Could you share today's daily menu?"
 ```
 
 The call asks for the daily menu, listens, asks for price/pickup time, then confirms and hangs up.

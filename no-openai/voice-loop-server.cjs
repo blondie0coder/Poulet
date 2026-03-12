@@ -191,11 +191,14 @@ app.post("/twilio/no-openai/start", async (req, res) => {
   try {
     ensureBaseUrl();
     const callSid = req.body.CallSid || "unknown";
-    getSession(callSid);
+    const session = getSession(callSid);
+    const requestedPrompt = (req.query.prompt || "").toString().trim();
+    const defaultPrompt = "Gruezi. This is Poulet. Could you please tell me today's daily menu?";
+    session.initialPrompt = requestedPrompt || session.initialPrompt || defaultPrompt;
 
     const actionUrl = `${PUBLIC_BASE_URL}/twilio/no-openai/step?turn=1`;
     const xml = await renderGatherResponse({
-      promptText: "Gruezi. This is Poulet. Could you please tell me today's daily menu?",
+      promptText: session.initialPrompt,
       actionUrl,
       hints: "daily menu,lunch special,menu of the day",
     });
@@ -268,12 +271,18 @@ app.post("/twilio/no-openai/call", async (req, res) => {
     }
 
     const to = req.body.to || process.env.DEFAULT_TEST_NUMBER;
+    const prompt =
+      (req.body.prompt || "").toString().trim() ||
+      "Gruezi. This is Poulet. Could you please tell me today's daily menu?";
     if (!to) return res.status(400).json({ error: "missing destination number" });
 
     const params = new URLSearchParams();
     params.set("To", to);
     params.set("From", TWILIO_FROM_NUMBER);
-    params.set("Url", `${PUBLIC_BASE_URL}/twilio/no-openai/start`);
+    params.set(
+      "Url",
+      `${PUBLIC_BASE_URL}/twilio/no-openai/start?prompt=${encodeURIComponent(prompt)}`
+    );
     params.set("Method", "POST");
     params.set("StatusCallback", `${PUBLIC_BASE_URL}/twilio/no-openai/status`);
     params.set("StatusCallbackMethod", "POST");
@@ -297,7 +306,12 @@ app.post("/twilio/no-openai/call", async (req, res) => {
 
     const payload = await response.json();
     if (!response.ok) return res.status(response.status).json(payload);
-    return res.json({ sid: payload.sid, status: payload.status, to: payload.to });
+    return res.json({
+      sid: payload.sid,
+      status: payload.status,
+      to: payload.to,
+      prompt,
+    });
   } catch (error) {
     console.error("[call] error:", error.message);
     return res.status(500).json({ error: error.message });

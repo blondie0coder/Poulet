@@ -19,13 +19,9 @@ Current provider: (configure in openclaw.json — see README for setup)
 
 Add known restaurants here so Poulet can look up numbers without asking:
 
-```
-### Example
-- Pizzeria Napoli: +41 44 123 45 67
-- Sushi Zen: +41 44 987 65 43
-```
+- Default test number: +41 78 204 07 99
 
-(Add real entries as you use the agent)
+(Add restaurant entries as you use the agent)
 
 ## TTS Language Hints
 

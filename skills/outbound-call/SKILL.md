@@ -1,37 +1,38 @@
 ---
 name: outbound-call
-description: Place outbound phone calls via ElevenLabs and get the transcript back
+description: Place outbound phone calls via ElevenLabs — two dedicated agents, two scripts
 ---
 
 # Outbound Call
 
-Two scripts, two use cases:
+Two scripts, two agents. The transcript is delivered automatically to Telegram via webhook — no polling needed.
 
 ## Check the daily menu
 
-Step 1 — place the call (instant):
 ```bash
 set -a && source /home/cadas/Code/Poulet/.env && set +a && python3 /home/cadas/Code/Poulet/skills/outbound-call/get_menu.py +41782040799
 ```
-Returns `{ "conversation_id": "conv_xxx" }`
 
-Step 2 — wait 30s then get transcript:
-```bash
-sleep 30 && set -a && source /home/cadas/Code/Poulet/.env && set +a && python3 /home/cadas/Code/Poulet/skills/outbound-call/get_menu.py --transcript conv_xxx
-```
+Returns `{ "success": true, "conversation_id": "conv_xxx", "status": "calling" }`.
+The menu will arrive on Telegram automatically when the call ends.
 
 ## Place an order
 
-Step 1 — place the call (instant):
+Replace `<ORDER>` with the items the user wants:
+
 ```bash
-set -a && source /home/cadas/Code/Poulet/.env && set +a && python3 /home/cadas/Code/Poulet/skills/outbound-call/place_order.py +41782040799 "2 pasta carbonara"
+set -a && source /home/cadas/Code/Poulet/.env && set +a && python3 /home/cadas/Code/Poulet/skills/outbound-call/place_order.py +41782040799 "<ORDER>"
 ```
 
-Step 2 — wait 30s then get transcript:
+Example:
 ```bash
-sleep 30 && set -a && source /home/cadas/Code/Poulet/.env && set +a && python3 /home/cadas/Code/Poulet/skills/outbound-call/place_order.py --transcript conv_xxx
+set -a && source /home/cadas/Code/Poulet/.env && set +a && python3 /home/cadas/Code/Poulet/skills/outbound-call/place_order.py +41782040799 "4 chicken and 3 beef"
 ```
+
+Returns `{ "success": true, "conversation_id": "conv_xxx", "status": "calling" }`.
+Order confirmation will arrive on Telegram automatically when the call ends.
 
 ## Available scripts
-- `get_menu.py` — menu inquiry calls
-- `place_order.py` — order calls
+
+- `get_menu.py` — menu inquiry calls (uses `ELEVENLABS_AGENT_ID`)
+- `place_order.py` — order placement calls (uses `ELEVENLABS_ORDER_AGENT_ID`)

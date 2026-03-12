@@ -3,6 +3,10 @@
         {
             "config": "agent_configs/Poulet.json",
             "id": "agent_3601kkhkb4vmfxs9j3fry6nmqpby"
+        },
+        {
+            "config": "agent_configs/Poulet-Order.json",
+            "id": "agent_2101kkhtdk5be5nt9nw51kq8czat"
         }
     ]
 }

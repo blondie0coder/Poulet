@@ -12,6 +12,7 @@ When a call ends, ElevenLabs automatically sends the transcript directly to Tele
 
 ### Step 1 — User asks for the menu
 
+Run this exact command:
 ```bash
 set -a && source /home/cadas/Code/Poulet/.env && set +a && python3 /home/cadas/Code/Poulet/skills/outbound-call/get_menu.py +41782040799
 ```
@@ -23,11 +24,14 @@ Then tell the user:
 
 ### Step 2 — User orders something
 
-The order name is always **Chris** and payment is always **Twint** — both are handled automatically.
+The second argument is ONLY the food items — nothing else. No name, no payment, no instructions.
 
 ```bash
-set -a && source /home/cadas/Code/Poulet/.env && set +a && python3 /home/cadas/Code/Poulet/skills/outbound-call/place_order.py +41782040799 "2 pasta carbonara"
+set -a && source /home/cadas/Code/Poulet/.env && set +a && python3 /home/cadas/Code/Poulet/skills/outbound-call/place_order.py +41782040799 "4 chicken and 3 beef"
 ```
+
+✅ Correct: `"4 chicken and 3 beef"`
+❌ Wrong: `"Order: 4 chicken. Name: Chris. Pay by Twint."` — never do this
 
 Then tell the user:
 ```
@@ -36,6 +40,8 @@ Then tell the user:
 
 ## Rules
 
+- ALWAYS run the shell command above — never fake a call or claim a workaround
+- If the script returns an error, show it to the user and stop
 - Place the call and inform the user — the transcript arrives automatically on Telegram
 - Never try to fetch the transcript yourself
 - Log each call in `memory/YYYY-MM-DD.md`

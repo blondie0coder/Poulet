@@ -2,11 +2,15 @@
 
 ## Voice Calls
 
-Calls are placed via the `voice_call` tool (OpenClaw voice-call plugin, powered by Twilio).
-Config lives in `~/.openclaw/openclaw.json` under `plugins.entries.voice-call`.
+Calls are placed via two dedicated ElevenLabs agents:
 
-Voice: ElevenLabs (`eleven_multilingual_v2`, voice ID configured in openclaw.json).
-STT: OpenAI Realtime (used by OpenClaw for live transcription during calls).
+| Agent | ID | Purpose |
+|---|---|---|
+| Poulet (menu) | `agent_3601kkhkb4vmfxs9j3fry6nmqpby` | Asks for the daily menu, hangs up when done |
+| Poulet-Order | `agent_2101kkhtdk5be5nt9nw51kq8czat` | Places an order, confirms, hangs up |
+
+The agents call via a Twilio number managed inside ElevenLabs.
+When a call ends, ElevenLabs fires a post-call webhook → `server.js` → Telegram.
 
 ## Restaurant Directory
 
@@ -20,4 +24,4 @@ Add more rows as you use the agent.
 
 ## Language
 
-Default is English. The user can specify a different language in their Telegram message (e.g. "call in French", "call in German").
+Both agents use `eleven_turbo_v2_5` with `language_detection` enabled — they switch automatically to French, German, Italian, or English depending on how the restaurant answers.

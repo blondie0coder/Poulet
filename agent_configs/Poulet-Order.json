@@ -1,16 +1,16 @@
 {
-    "name": "Poulet",
+    "name": "Poulet-Order",
     "conversation_config": {
         "agent": {
-            "first_message": "Bonjour ! Je vous appelle pour connaître le menu du jour, s'il vous plaît.",
+            "first_message": "Bonjour ! Je voudrais passer une commande, s'il vous plaît.",
             "language": "fr",
             "prompt": {
-                "prompt": "Tu appelles un restaurant pour connaître le menu du jour. Demande le menu, écoute la réponse, remercie et raccroche.",
+                "prompt": "Tu passes une commande dans un restaurant par téléphone. Énonce la commande clairement, confirme-la avec le restaurant, puis raccroche.",
                 "built_in_tools": {
                     "end_call": {
                         "type": "system",
                         "name": "end_call",
-                        "description": "End the call after getting the menu.",
+                        "description": "End the call only after the order is confirmed.",
                         "params": {"system_tool_type": "end_call"}
                     },
                     "language_detection": {

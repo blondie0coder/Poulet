@@ -3,3 +3,5 @@ node_modules/
 .openclaw/
 *.log
 .DS_Store
+memory/
+no-openai/audio-cache/

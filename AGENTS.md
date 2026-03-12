@@ -55,7 +55,7 @@ Determine mode first from `memory/VOICE_MODE.txt`:
 
 1. Build a short first prompt for the restaurant from the user request.
 2. Trigger the no-openai service via shell:
-   - Endpoint: `POST $NOOPENAI_SERVER_URL/twilio/no-openai/call`
+   - Endpoint: `POST ${NOOPENAI_SERVER_URL:-http://127.0.0.1:3340}/twilio/no-openai/call`
    - Headers:
      - `Content-Type: application/json`
      - `x-admin-token: $NOOPENAI_ADMIN_TOKEN` (only if token is set)

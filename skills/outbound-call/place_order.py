@@ -13,8 +13,20 @@ def api(method, url, body=None):
     data = json.dumps(body).encode() if body else None
     req = urllib.request.Request(url, data=data, method=method,
           headers={"xi-api-key": API_KEY, "Content-Type": "application/json"})
-    with urllib.request.urlopen(req) as r:
-        return json.loads(r.read())
+    try:
+        with urllib.request.urlopen(req) as r:
+            return json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        raw = e.read().decode("utf-8", errors="replace")
+        detail = raw
+        try:
+            payload = json.loads(raw)
+            detail = payload.get("detail") or payload.get("message") or raw
+        except Exception:
+            pass
+        raise RuntimeError(f"ElevenLabs HTTP {e.code}: {detail}")
+    except urllib.error.URLError as e:
+        raise RuntimeError(f"Network error calling ElevenLabs: {e.reason}")
 
 def place_call(to, items):
     if not API_KEY:
@@ -25,18 +37,21 @@ def place_call(to, items):
         return {"error": "ELEVENLABS_PHONE_NUMBER_ID not set — check .env"}
     if not re.match(r'^\+\d{7,15}$', to):
         return {"error": f"Invalid number: {to}"}
-    result = api("POST", "https://api.elevenlabs.io/v1/convai/twilio/outbound-call", {
-        "agent_id": AGENT_ID,
-        "agent_phone_number_id": PHONE_NUMBER_ID,
-        "to_number": to,
-        "conversation_initiation_client_data": {
-            "conversation_config_override": {
-                "agent": {
-                    "first_message": f"Bonjour ! Je voudrais commander {items}. C'est au nom de Chris, et on paie par Twint."
+    try:
+        result = api("POST", "https://api.elevenlabs.io/v1/convai/twilio/outbound-call", {
+            "agent_id": AGENT_ID,
+            "agent_phone_number_id": PHONE_NUMBER_ID,
+            "to_number": to,
+            "conversation_initiation_client_data": {
+                "conversation_config_override": {
+                    "agent": {
+                        "first_message": f"Bonjour ! Je voudrais commander {items}. C'est au nom de Chris, et on paie par Twint."
+                    }
                 }
             }
-        }
-    })
+        })
+    except Exception as e:
+        return {"error": str(e)}
     conv_id = result.get("conversation_id")
     if not conv_id:
         return {"error": result.get("error", "Call failed")}

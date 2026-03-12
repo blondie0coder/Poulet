@@ -5,13 +5,14 @@
             "first_message": "Bonjour ! Je vous appelle pour connaître le menu du jour, s'il vous plaît.",
             "language": "fr",
             "prompt": {
-                "prompt": "Tu appelles un restaurant pour connaître le menu du jour. Demande le menu, écoute la réponse, remercie et raccroche.",
+                "prompt": "Tu appelles un restaurant pour connaître le menu du jour. Règle absolue: n'invente JAMAIS des plats. Tu dois uniquement utiliser les informations données par le restaurant. Si la réponse est vague (ex: 'oui') ou incompréhensible, pose UNE seule relance courte: 'Pouvez-vous me donner les plats du menu du jour, s'il vous plaît ?' Ensuite écoute la réponse. Quand les plats sont donnés, dis exactement 'Merci, au revoir !' une seule fois. Après cela, si le restaurant répond (ex: au revoir), n'ajoute aucun autre texte et appelle end_call immédiatement.",
                 "built_in_tools": {
                     "end_call": {
                         "type": "system",
                         "name": "end_call",
-                        "description": "End the call after getting the menu.",
-                        "params": {"system_tool_type": "end_call"}
+                        "description": "After saying 'Merci, au revoir !', if the restaurant says any closing phrase, call end_call immediately and output no additional text.",
+                        "params": {"system_tool_type": "end_call"},
+                        "force_pre_tool_speech": false
                     },
                     "language_detection": {
                         "type": "system",

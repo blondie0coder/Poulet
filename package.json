@@ -1,19 +1,22 @@
 {
   "name": "poulet",
   "version": "1.0.0",
+  "type": "module",
   "description": "OpenClaw agent that calls restaurants and orders food via Telegram",
   "scripts": {
-    "start": "npx openclaw gateway",
-    "doctor": "npx openclaw doctor"
+    "server": "node server.js",
+    "agent": "npx openclaw gateway",
+    "start": "node server.js"
   },
-  "keywords": [
-    "openclaw",
-    "telegram",
-    "restaurant",
-    "voice"
-  ],
+  "keywords": ["elevenlabs", "twilio", "openclaw", "telegram", "restaurant", "voice"],
   "license": "MIT",
   "dependencies": {
-    "openclaw": "^2026.3.11"
+    "@fastify/formbody": "^8.0.2",
+    "@fastify/websocket": "^11.0.2",
+    "dotenv": "^16.0.3",
+    "fastify": "^5.2.2",
+    "openclaw": "^2026.3.11",
+    "twilio": "^5.4.5",
+    "ws": "^8.18.0"
   }
 }

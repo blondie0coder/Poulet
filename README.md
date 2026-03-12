@@ -1,29 +1,17 @@
 # Poulet 🐔
 
-A personal restaurant-ordering agent. You tell it what you want on Telegram, it calls the restaurant and orders for you.
+You send a message on Telegram. Poulet calls the restaurant and orders for you. Natural voice, full conversation — powered by ElevenLabs Conversational AI.
 
 ## Architecture
 
 ```
-Telegram  →  OpenClaw (Claude)  →  Twilio (voice call)
-                    ↑                        ↓
-               ANTHROPIC_API_KEY      ElevenLabs TTS
-                                      OpenAI Realtime STT
+Telegram → OpenClaw (Claude) → POST /call → Voice Server → Twilio dials the restaurant
+                                                               ↕ WebSocket
+                                                          ElevenLabs Conversational AI
+                                                          (talks to restaurant, fully autonomous)
 ```
 
-- **OpenClaw** is the orchestrator — it receives your Telegram message, understands what to order, places the call, has the conversation, and reports back.
-- **Twilio** dials the phone number.
-- **ElevenLabs** provides the voice (natural TTS).
-- **OpenAI Realtime** transcribes what the restaurant says back (STT, required by OpenClaw's streaming mode).
-
-## Prerequisites
-
-- [OpenClaw](https://openclaw.ai) account and CLI
-- [Twilio](https://twilio.com) account (paid — trial accounts block international calls)
-- [ElevenLabs](https://elevenlabs.io) API key
-- [OpenAI](https://platform.openai.com) API key
-- [Anthropic](https://anthropic.com) API key
-- [ngrok](https://ngrok.com) account + authtoken
+No OpenAI needed. ElevenLabs handles the entire conversation — STT, LLM, TTS — natively.
 
 ## Setup
 
@@ -35,89 +23,70 @@ cd poulet
 npm install
 ```
 
-### 2. Environment variables
+### 2. Create an ElevenLabs Conversational AI agent
+
+1. Go to [elevenlabs.io](https://elevenlabs.io) → **Conversational AI** → **Create Agent**
+2. Set the **system prompt** (example):
+   ```
+   You are Poulet, a food ordering assistant calling a restaurant on behalf of a customer.
+   Be polite and professional. Confirm the order details, ask for price and pickup time,
+   and say goodbye when done.
+   ```
+3. Choose the **voice** (use your preferred ElevenLabs voice)
+4. Copy the **Agent ID** from the agent settings page
+
+### 3. Configure environment
 
 ```bash
 cp .env.example .env
-# Fill in all values in .env
 ```
 
-### 3. ngrok
+Fill in `.env`:
 
-ngrok exposes your local OpenClaw webhook server to Twilio.
+| Variable | Description |
+|---|---|
+| `TELEGRAM_BOT_TOKEN` | Your Telegram bot token |
+| `ELEVENLABS_API_KEY` | Your ElevenLabs API key |
+| `ELEVENLABS_AGENT_ID` | Agent ID from step 2 |
+| `TWILIO_ACCOUNT_SID` | Twilio Account SID |
+| `TWILIO_AUTH_TOKEN` | Twilio Auth Token |
+| `TWILIO_FROM_NUMBER` | Your Twilio phone number |
+| `ANTHROPIC_API_KEY` | Anthropic API key (for the Telegram bot brain) |
+| `PUBLIC_URL` | Your ngrok public URL (no trailing slash) |
+
+### 4. Set up ngrok
 
 ```bash
 ngrok config add-authtoken <your-token>
-ngrok http 3334
+# ngrok.yml already configured for port 8000
+ngrok start --all
 ```
 
-Copy the public URL (e.g. `https://xxxx.ngrok-free.app`) and set it as:
-- `PUBLIC_BASE_URL` in `.env`
-- `plugins.entries.voice-call.config.publicUrl` in `~/.openclaw/openclaw.json` (append `/voice/webhook`)
+Copy the public URL (e.g. `https://xxxx.ngrok-free.app`) and set it as `PUBLIC_URL` in `.env`.
 
-### 4. OpenClaw config
+### 5. Start everything
 
-Edit `~/.openclaw/openclaw.json` — the voice-call plugin needs:
-
-```json
-{
-  "plugins": {
-    "entries": {
-      "voice-call": {
-        "enabled": true,
-        "config": {
-          "provider": "twilio",
-          "twilio": {
-            "accountSid": "<TWILIO_ACCOUNT_SID>",
-            "authToken": "<TWILIO_AUTH_TOKEN>"
-          },
-          "fromNumber": "<TWILIO_FROM_NUMBER>",
-          "publicUrl": "https://<ngrok-subdomain>.ngrok-free.app/voice/webhook",
-          "serve": { "port": 3334, "path": "/voice/webhook" },
-          "outbound": { "defaultMode": "conversation" },
-          "tunnel": { "provider": "ngrok", "allowNgrokFreeTierLoopbackBypass": true },
-          "streaming": { "enabled": true, "streamPath": "/voice/stream" },
-          "skipSignatureVerification": true,
-          "tts": {
-            "provider": "elevenlabs",
-            "elevenlabs": {
-              "apiKey": "<ELEVENLABS_API_KEY>",
-              "voiceId": "<ELEVENLABS_VOICE_ID>",
-              "modelId": "eleven_multilingual_v2"
-            }
-          }
-        }
-      }
-    }
-  }
-}
-```
-
-### 5. Start
-
+Terminal 1 — voice server:
 ```bash
-npm start
+npm run server
 ```
 
-Then pair your Telegram account when prompted.
+Terminal 2 — OpenClaw Telegram bot:
+```bash
+npm run agent
+```
 
-## Usage
+### 6. Use it
 
-Send a message to your bot on Telegram:
+Send to your Telegram bot:
+> Order a margherita pizza from Pizzeria Napoli, pickup at 7pm
 
-> Order a margherita pizza from Pizzeria Napoli, pickup at 19:30
+Poulet places the call. ElevenLabs handles the conversation. You get a confirmation.
 
-Poulet will call the restaurant, have the conversation, and report back with a confirmation.
+## Customising the voice
+
+Change the voice in the ElevenLabs agent settings — any voice, any language, any accent. The agent prompt controls the personality and language of the call.
 
 ## Adding restaurants
 
-Add phone numbers to `TOOLS.md` so Poulet doesn't have to ask you every time.
-
-## Troubleshooting
-
-| Problem | Fix |
-|---|---|
-| Call connects but drops immediately | Check `publicUrl` in openclaw.json matches current ngrok URL |
-| Robotic voice | ElevenLabs not configured — check `tts` block in openclaw.json |
-| Agent can't hear the restaurant | OpenAI key missing or invalid — streaming STT requires it |
-| Call never connects | Check Twilio geo permissions for Switzerland (+41) |
+Add phone numbers to `TOOLS.md` so Poulet doesn't have to ask every time.
